@@ -1,5 +1,21 @@
-# play_chess()
 
+tred = "\033[31m"
+tgreen = "\033[32m"
+tyellow = "\033[33m"
+clr = "\033[0m"
+
+
+white = ["X", "Q", "B", "K", "R", "P"]
+black = ["x", "q", "b", "k", "r", "p"]
+end1 = [1,9,17,25,33,41,49,57]
+end2 = [8,16,24,32,40,48,56,64]
+turn = 1 
+valid_list = [] 
+kingmove = [0,0]
+check = [0,0]
+
+
+# ================================================================================================================
 
 p = {
         "a1" : "r",
@@ -132,11 +148,9 @@ index = {
         "h6" : 48,
         "h7" : 56,
         "h8" : 64
-}
+    }
 def print_board():
 
-    # self.mov = mov
-    # self.plac = plac
     print(F"               ~~~~~~   BLACK   ~~~~~~             ")
     print(f"     A     B     C     D     E     F     G     H   ")
     print(f"  |=====|=====|=====|=====|=====|=====|=====|=====|")
@@ -160,100 +174,124 @@ def print_board():
 
     print(f"               ~~~~~~   WHITE   ~~~~~~             ")
 
-white = ["X", "Q", "B", "K", "R", "P"]
-black = ["x", "q", "b", "k", "r", "p"]
-
-turn = 1 
-valid_list = [] 
+# =================================================================================================================
 
 def undo(mov, plac):
     a = p.get(mov)
     p.update({ mov : a})
-    p.update({ plac : " "})
-    
+    p.update({ plac : " "})    
 def movepiece(mov, plac):
-
     a = p.get(mov)
     p.update({ mov : " "})
     p.update({ plac : a} )
+def pawnupgrade():
+    if pc_mov == "P":
+        if idx_plc in range(1, 9):
+            ask = input(f"\n    {tyellow} ENTER PIECE TO UPGRADE : {clr}").upper()
+            if ask in ["Q","B","K","R"]:
+                p.update({ plac : ask})
+            else:
+                print("CAN'T PLACE THIS PIECE")
+                pawnupgrade()
+    if pc_mov == "p":
+        if idx_plc in range(57, 65):
+            ask = input(f"\n     {tyellow}ENTER PIECE TO UPGRADE : {clr}").lower()
+            if ask in ["q","b","k","r"]:
+                p.update({ plac : ask})
+            else:
+                print("CAN'T PLACE THIS PIECE")
+                pawnupgrade()
+def castling(mov,plac):
+    if p.get(mov) == "X":
+        if kingmove[0] < 1:
+            if index.get(plac) == 63:
+                p.update({ "h8" : " "})
+                p.update({ "f8" : "R"})
+            if index.get(plac) == 59:
+                p.update({ "a8" : " "})
+                p.update({ "d8" : "R"})
+            return True
+    elif p.get(mov) == "x":
+        if kingmove[1] < 1:
+            if index.get(plac) == 7:
+                p.update({ "h1" : " "})
+                p.update({ "f1" : "R"})
+            if index.get(plac) == 3:
+                p.update({ "a1" : " "})
+                p.update({ "d1" : "R"})
+            return True
+    else:
+        return False
+def empasant():
+    pass
 
+# =================================================================================================================
 
 def in_valid(valid_list,a,b,c,d):
-    if p.get(mov) in ["R","B"]:
-        plist = list(p.values())
-        idxlist = list(index.values())
-        rlist = []
-        direction = [a,b,c,d]
-        for i in range(63):
-            if plist[i] in white:
-                rlist.append(idxlist[i])        
-        for k, sublist in enumerate(direction):
-            x = sublist
-            for j in range(len(x)):
-                if x[j] in rlist:
-                    break
-                elif x[j] in black:
-                    valid_list.append(x[j])
-                    break
-                else:
-                    valid_list.append(x[j])
-    else:
-        plist = list(p.values())
-        idxlist = list(index.values())
-        rlist = []  
-        direction = [a,b,c,d]
-        for i in range(63):
-            if plist[i] in black:
-                rlist.append(idxlist[i])        
-        for k, sublist in enumerate(direction):
-            x = sublist
-            for j in range(len(x)):
-                if x[j] in rlist:
-                    break
-                elif x[j] in white:
-                    valid_list.append(x[j])
-                    break
-                else:
-                    valid_list.append(x[j])
 
+    plist = list(p.values())
+    idxlist = list(index.values())
+    rlist = []
+    olist = []
+    direction = [a,b,c,d]
+    clr = [black,white]
+    for i in range(63):
+        if plist[i] in clr[turn]:
+            rlist.append(idxlist[i]) 
+        if plist[i] in clr[1-turn]:
+            olist.append(idxlist[i])
+    for k, sublist in enumerate(direction):
+        x = sublist
+        for j in range(len(x)):
+            if idx_plc in end1 or idx_plc in end2:
+                if x[j] in rlist:
+                    break
+                elif x[j] in olist:
+                    valid_list.append(x[j])
+                    break
+                else:
+                    valid_list.append(x[j])
+            else:
+                if x[j] in rlist:
+                    break
+                elif x[j] in olist or x[j] in end1 or x[j] in end2:
+                    valid_list.append(x[j])
+                    break
+                else:
+                    valid_list.append(x[j])
+    
 def Queenspecial(valid_list,a,b,c,d,e,f,g,h):
-    if p.get(mov) in "Q":
-        plist = list(p.values())
-        idxlist = list(index.values())
-        rlist = []  
-        direction = [a,b,c,d,e,f,g,h]
-        for i in range(63):
-            if plist[i] in white:
-                rlist.append(idxlist[i])        
-        for k, sublist in enumerate(direction):
-            x = sublist
-            for j in range(len(x)):
-                if x[j] in rlist:
-                    break
-                elif x[j] in black:
-                    valid_list.append(x[j])
-                    break
-                else:
-                    valid_list.append(x[j])
-    else:
-        plist = list(p.values())
-        idxlist = list(index.values())
-        rlist = []  
-        direction = [a,b,c,d,e,f,g,h]
-        for i in range(63):
-            if plist[i] in black:
-                rlist.append(idxlist[i])        
-        for k, sublist in enumerate(direction):
-            x = sublist
-            for j in range(len(x)):
-                if x[j] in rlist:
-                    break
-                elif x[j] in white:
-                    valid_list.append(x[j])
-                    break
-                else:
-                    valid_list.append(x[j])
 
+    plist = list(p.values())
+    idxlist = list(index.values())
+    rlist = []
+    olist = []  
+    direction = [a,b,c,d,e,f,g,h]
+    clr = [black,white]
+    for i in range(63):
+        if plist[i] in clr[turn]:
+            rlist.append(idxlist[i])
+        if plist[i] in clr[1-turn]:
+            olist.append(idxlist[i])        
+    for k, sublist in enumerate(direction):
+        x = sublist
+        for j in range(len(x)):
+            if idx_plc in end1 or idx_plc in end2:
+                if x[j] in rlist:
+                    break
+                elif x[j] in olist:
+                    valid_list.append(x[j])
+                    break
+                else:
+                    valid_list.append(x[j])
+            else:
+                if x[j] in rlist:
+                    break
+                elif x[j] in olist or x[j] in end1 or x[j] in end2:
+                    valid_list.append(x[j])
+                    break
+                else:
+                    valid_list.append(x[j])
 
 def valid_move(mov, plac):
     
@@ -266,7 +304,7 @@ def valid_move(mov, plac):
     if pc_mov == "P":
         if p.get(idx_plc-9) in black or p.get(idx_plc+7) in black :
             return True
-        elif (49 <= idx_mov) or (idx_mov <= 56):
+        elif (49 <= idx_mov) and (idx_mov <= 56) and (pc_plc) == " ":
             if idx_plc in [idx_mov-8, idx_mov-16]:     
                 return True
         elif idx_plc in [idx_mov-8] and (pc_plc) == " ":
@@ -275,7 +313,7 @@ def valid_move(mov, plac):
     elif pc_mov == "p":
         if p.get(idx_plc+9) in white or p.get(idx_plc+7) in white :
             return True
-        elif (9 <= idx_mov) or (idx_mov <= 16) and (pc_plc) == " ":
+        elif (9 <= idx_mov) and (idx_mov <= 16) and (pc_plc) == " ":
             if idx_plc in [idx_mov+8, idx_mov+16]:     
                 return True
         elif idx_plc in [idx_mov+8] and (pc_plc) == " ":
@@ -283,16 +321,27 @@ def valid_move(mov, plac):
         
     # White KING
     elif pc_mov == "X":
-        if pc_plc in black:
-            return True
+        kingmove[0] = kingmove[0] + 0.5
+        if pc_plc in white:
+            return False
+        if idx_plc in [idx_mov+2, idx_mov-2]:
+            if castling(mov,plac):
+                return True
         elif idx_plc in [idx_mov+1, idx_mov-1, idx_mov+9, idx_mov+8, idx_mov+7, idx_mov-9, idx_mov-8, idx_mov-7]:
+            return True
+        elif pc_plc in black:
             return True
         # BLACK KING
     elif pc_mov == "x":
-        if pc_plc in white:
-            return True
-            
+        kingmove[1] = kingmove[1] + 0.5
+        if pc_plc in black:
+            return False
+        elif idx_plc in [idx_mov+2, idx_mov-2]:
+            if castling(mov,plac) == True:
+                return True
         elif idx_plc in [idx_mov+1, idx_mov-1, idx_mov+9, idx_mov+8, idx_mov+7, idx_mov-9, idx_mov-8, idx_mov-7]:
+            return True
+        elif pc_plc in white:
             return True
 
     # WHITE KNIGHT
@@ -323,10 +372,11 @@ def valid_move(mov, plac):
         d = [(idx_mov + i) for i in range(1,9)]
         in_valid(valid_list, a, b, c, d)
         if idx_plc in valid_list:
-            if pc_plc == " ":
-                return True
-            elif pc_plc in black:
-                return True
+            if mov[0] == plac[0] or mov[1] == plac[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in black:
+                    return True
         # BLACK ROOK
     elif pc_mov == "r":
         a = [(idx_mov - (8*i)) for i in range(1,9)]
@@ -335,10 +385,11 @@ def valid_move(mov, plac):
         d = [(idx_mov + i) for i in range(1,9)]
         in_valid(valid_list, a, b, c, d)
         if idx_plc in valid_list:
-            if pc_plc == " ":
-                return True
-            elif pc_plc in white:
-                return True
+            if mov[0] == plac[0] or mov[1] == plac[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in white:
+                    return True
             
     # WHITE BISHOP
     elif pc_mov == "B":
@@ -379,10 +430,11 @@ def valid_move(mov, plac):
         h = [(idx_mov + i) for i in range(1,9)]
         Queenspecial(valid_list,a,b,c,d,e,f,g,h)
         if idx_plc in valid_list:
-            if pc_plc == " ":
-                return True
-            elif pc_plc in black:
-                return True
+            # if mov[0] == plac[0] or mov[1] == plac[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in black:
+                    return True
         # BLACK QUEEN
     elif pc_mov == "q":
         # q_filtered_dict = list({k: ch for k, ch in index.items() if mov[0]==plac[0] or mov[1]==plac[1] or idx_plc in a or idx_plc in b or idx_plc in c or idx_plc in d}.values())
@@ -394,43 +446,103 @@ def valid_move(mov, plac):
         f = [(idx_mov + (8*i)) for i in range(1,9)]
         g = [(idx_mov - i) for i in range(1,9)]
         h = [(idx_mov + i) for i in range(1,9)]
+        Queenspecial(valid_list,a,b,c,d,e,f,g,h)
         if idx_plc in valid_list:
-            if pc_plc == " ":
-                return True
-            elif pc_plc in white:
-                return True
+            # if mov[0] == plac[0] or mov[1] == plac[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in white:
+                    return True
+    
+    return False            
 
+# =================================================================================================================
 
-        return False            
+def checkmate():
+    pass
 
 def checkforcheck():
     plist = list(p.values())
     idxlist = list(index.values())
-    kings = ["X", "x"]
-    kidx = []
-    checkfor = []
-    for i in range(63):
-        if plist[i] in kings:
-            kidx.append(idxlist[i])
-            checkfor.append(plist[i])
-    if kidx in kings:
-        return checkfor
-    
+    color = [white,black]
+    rlist = []
+    olist = []
+    valid = []
+    valid1 = []
+    for i in range(64):
+        if plist[i] == "X":
+            X = idxlist[i]
+        if plist[i] == "x":
+            x = idxlist[i]
+    li = [X,x]
+    for z in range(2):
+        for i in range(64):
+            if plist[i] in color[z]:
+                rlist.append(idxlist[i]) 
+            if plist[i] in color[1-z]:
+                olist.append(idxlist[i])
+        a = [(li[z] - (8*i)) for i in range(1,9)]
+        m = [(li[z] + (8*i)) for i in range(1,9)]
+        c = [(li[z] - i) for i in range(1,9)]
+        d = [(li[z] + i) for i in range(1,9)]
+        e = [(li[z] + ((8*i)+i)) for i in range(1, 8)]
+        f = [(li[z] + ((8*i)-i)) for i in range(1, 8)]
+        g = [(li[z] - ((8*i)+i)) for i in range(1, 8)]
+        h = [(li[z] - ((8*i)-i)) for i in range(1, 8)]
+        u = [li[1-z]+6, li[1-z]+10, li[1-z]+15, li[1-z]+17, li[1-z]-6, li[1-z]-10, li[1-z]-15, li[1-z]-17]
+        direction = [a,m,c,d,e,f,g,h]
+        for l,x in enumerate(direction):
+            for j in range(len(x)):
+                if x[j] <= 64 and x[j] > 0:
+                    if x[j] in rlist:
+                        break
+                    elif x[j] in olist or x[j] in end2 or x[j] in end1:
+                        valid1.append(x[j])
+                        break
+                    else:
+                        valid1.append(x[j])
+            
+        for k in range(64):
+            if idxlist[k] in valid1:
+                valid.append(plist[k])
+        # print(f"{z} : {valid1}")
+        # print(f"{z} : {valid}")
+        if z == 0:
+            if ("q" in valid) or ("r" in valid) or ("b" in valid) or ("k" in u):
+                check[0] = 1
+                print(valid)
+                print(f"\n       {tred} =====================================")
+                print(f"        ||  IT'S CHECK FOR :  ~~ WHITE ~~ ||")
+                print(f"        ====================================={clr}")
+        elif z == 1:
+            check[1] = 1
+            if ("Q" in valid) or ("R" in valid) or ("B" in valid) or ("K" in u):
+                print(f"\n       {tred} =====================================")
+                print(f"        ||   IT'S CHECK FOR :  ~~ BLACK ~~ ||")
+                print(f"        ====================================={clr}")
+        else:
+            check[0] = 0
+            check[1] = 0
+        rlist.clear()
+        olist.clear()
+        valid1.clear()
+        valid.clear()
+
 def gameover():
     pglist = list(p.values())
     if "X" not in pglist:
-        print(f"\033[32m=========================")
+        print(f"{tgreen}=========================")
         print(f"||      BLACK WON      ||")
-        print(f"=========================\033[0m")
+        print(f"========================={clr}")
         a = input("WANT TO  AGAIN [y/n]: ")
         if a == "y":
             print_board()
         elif a == "n":
             print(f"         ~~  THANK YOU  ~~")
     elif "x" not in pglist:
-        print(f"\033[32m=========================")
+        print(f"{tgreen}=========================")
         print(f"||      WHITE WON      ||")
-        print(f"=========================\033[0m")
+        print(f"========================={clr}")
         a = input("WANT TO PLAY AGAIN [y/n]: ")
         if a == "y":
             print_board()
@@ -439,47 +551,47 @@ def gameover():
     else:
         pglist.clear()
 
+# =================================================================================================================
+def custom():
+    moves = [
+        ("a1", "f3"),
+        ("a7", "a2")
+    ]
+    for i in moves:
+        p[i[1]] = p[i[0]]
+        p[i[0]] = " "
+# custom()
 
+# ==================================================================================================================
 while True:
-
     print_board()
+
     if turn == 1:
         print("white turn")
     else:
         print("black turn")
-        
+
     mov = input("SELECT PIECE : ")
     plac = input("ENTER PLACE POSITION : ")
-  
-    # ====== CHECK FOR CHECK =======
-    if checkforcheck() == "X":
-        print("ITS CHECK FOR:  WHITE")
-    elif checkforcheck() == "x":
-        print("ITS CHECK FOR:  BLACK")
-    else:
-        valid_list.clear()
+    pc_mov = p.get(mov)
+    idx_plc = index.get(plac)
+    # if mov == "undo" or plac == "undo":
 
-
-    if turn == 1: 
-      
-        if valid_move(mov, plac) ==  True:
-            movepiece(mov, plac)
-            turn = 1-turn
-            print(valid_list)
-            gameover()
-        else:
-            print(f"\n              \033[31m ~~ NOT A VALID MOVE! ~~ \033[0m\n")
-
-    elif mov == "undo" or plac == "undo":
-        undo(mov, plac)
-
-    elif turn == 0:
+   # ========================================
+    try:
         if valid_move(mov, plac) == True:
             movepiece(mov, plac)
+            pawnupgrade()
             turn = 1-turn
-            print(valid_list)
-            gameover()
+            valid_list.clear()
         else:
-            print(f"\n              \033[31m ~~ NOT A VALID MOVE! ~~ \033[0m\n")
-    
-    gameover()
+            print(f"\n              {tred} ~~ NOT A VALID MOVE! ~~ {clr}")
+
+        # ====== CHECK FOR CHECK =======
+        gameover()
+        checkforcheck()
+
+    except TypeError as w:
+        print(f"\n            {tred}   ENTER A VALID POSITION{clr}")
+
+
