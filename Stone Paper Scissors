@@ -1,0 +1,44 @@
+import random
+'''
+1 for stone 
+-1 of paper 
+0 for Scissor
+
+'''
+print("~~~~~~~~~ WELCOME ~~~~~~~~~")
+def SPS():
+    comp = random.choice([1,-1,0])
+    list = {"stone":1 , "paper":-1 , "scissor":0}
+    revlist = {1:"stone" , -1:"paper" , 0:"scissor"}
+
+    unum = input("SELECT STONE PAPER OR SCISSOR = ")
+
+    distnum = list[unum.lower()]
+    compnum = revlist[comp]
+
+    print(f"COMPUTER choice : {compnum}")
+    print(f"You choice : {unum}")
+
+    if distnum == comp:
+        print("its a draw")
+    else:
+        if distnum == 1 and comp == -1:
+            print("U LOSE NOOB")
+        elif distnum == 1 and comp == 0:
+            print("CONGRATS!! You win")
+        elif distnum == -1 and comp == 1:
+            print("CONGRATS!! You win")
+        elif distnum == -1 and comp == 0:
+            print("U LOSE NOOB")
+        elif distnum == 0 and comp == 1:
+            print("U LOSE NOOB")
+        elif distnum == 0 and comp == -1:
+            print("CONGRATS!! You win")
+
+    play_again = input("Wanna play again? (y/n): ").lower()
+    if play_again == "y":
+        SPS()
+    else:
+        print("Thank you for playing Tic-Tac-Toe!")
+
+SPS()
