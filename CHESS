@@ -1,0 +1,524 @@
+import sys
+bd = "\033[1m"
+itl = "\033[3m"
+ioff = "\033[23m"
+tred = "\033[31m"
+tgreen = "\033[32m"
+tyellow = "\033[33m"
+tcyan = "\033[36m"
+clr = "\033[0m"
+print(f"  {tyellow}{bd}____________________________________________________________ ")
+print(f" |                                                            |")
+print(f" |   ♟️     ~~~ W E L C O M E   T O   C H E S S ~~~     ♟️    |")
+print(f" |                                           {itl} ~ By Pratham  {ioff}  |")
+print(f" |____________________________________________________________|{clr}\n")
+
+turn = 1 
+white = ["Q", "B", "K", "R", "P"]
+black = ["q", "b", "k", "r", "p"]
+end1 = [1,9,17,25,33,41,49,57]
+end2 = [8,16,24,32,40,48,56,64]
+grave = [0,0,0,0,0,0,0,0,0,0]
+empasant_pos = []
+kpos = [5,61]
+kingrook_move = [0,0,0,0,0,0]
+check = [0,0]
+
+def print_board():
+
+    print(F"                 ~~~~~~   BLACK   ~~~~~~             ")
+    print(f"       A     B     C     D     E     F     G     H   ")
+    print(f"    |=====|=====|=====|=====|=====|=====|=====|=====|")
+    print(f"  1 |  {p.get("a1")}  |  {p.get("b1")}  |  {p.get("c1")}  |  {p.get("d1")}  |  {p.get("e1")}  |  {p.get("f1")}  |  {p.get("g1")}  |  {p.get("h1")}  | 1")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|")
+    print(f"  2 |  {p.get("a2")}  |  {p.get("b2")}  |  {p.get("c2")}  |  {p.get("d2")}  |  {p.get("e2")}  |  {p.get("f2")}  |  {p.get("g2")}  |  {p.get("h2")}  | 2        ~ GRAVEYARD ~")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|          white | black")
+    print(f"  3 |  {p.get("a3")}  |  {p.get("b3")}  |  {p.get("c3")}  |  {p.get("d3")}  |  {p.get("e3")}  |  {p.get("f3")}  |  {p.get("g3")}  |  {p.get("h3")}  | 3              |")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|           P {grave[0] if grave[0] !=0 else " "}  |  p {grave[5] if grave[5]!=0 else " "}")
+    print(f"  4 |  {p.get("a4")}  |  {p.get("b4")}  |  {p.get("c4")}  |  {p.get("d4")}  |  {p.get("e4")}  |  {p.get("f4")}  |  {p.get("g4")}  |  {p.get("h4")}  | 4         Q {grave[1] if grave[1] !=0 else " "}  |  q {grave[6] if grave[6] !=0 else " "}  ")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|           B {grave[2] if grave[2] !=0 else " "}  |  b {grave[7] if grave[7] !=0 else " "}")
+    print(f"  5 |  {p.get("a5")}  |  {p.get("b5")}  |  {p.get("c5")}  |  {p.get("d5")}  |  {p.get("e5")}  |  {p.get("f5")}  |  {p.get("g5")}  |  {p.get("h5")}  | 5         K {grave[3] if grave[3] !=0 else " "}  |  k {grave[8] if grave[8] !=0 else " "}  ")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|           R {grave[4] if grave[4] !=0 else " "}  |  r {grave[9] if grave[9] !=0 else " "}")
+    print(f"  6 |  {p.get("a6")}  |  {p.get("b6")}  |  {p.get("c6")}  |  {p.get("d6")}  |  {p.get("e6")}  |  {p.get("f6")}  |  {p.get("g6")}  |  {p.get("h6")}  | 6              |")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|")
+    print(f"  7 |  {p.get("a7")}  |  {p.get("b7")}  |  {p.get("c7")}  |  {p.get("d7")}  |  {p.get("e7")}  |  {p.get("f7")}  |  {p.get("g7")}  |  {p.get("h7")}  | 7")
+    print(f"    |—————|—————|—————|—————|—————|—————|—————|—————|")
+    print(f"  8 |  {p.get("a8")}  |  {p.get("b8")}  |  {p.get("c8")}  |  {p.get("d8")}  |  {p.get("e8")}  |  {p.get("f8")}  |  {p.get("g8")}  |  {p.get("h8")}  | 8")
+    print(f"    |=====|=====|=====|=====|=====|=====|=====|=====|")
+    print(f"       A     B     C     D     E     F     G     H   ")
+    print(f"                 ~~~~~~   WHITE   ~~~~~~             ")
+
+# ===============================  P I E C E   M O V E M E N T =======================================================================
+                            
+def undo(mov, plac):
+    a = p.get(mov)
+    p.update({ mov : a})
+    p.update({ plac : " "})    
+def movepiece(mov, plac):
+        a = p.get(mov)
+        p.update({ mov : " "})
+        p.update({ plac : a})
+        if pc_plc != " ":
+            graveyard(pc_plc)
+def pawnupgrade():
+    if pc_mov == "P":
+        if idx_plc in range(1, 9):
+            ask = input(f"\n    {tyellow} ENTER PIECE TO UPGRADE : {clr}").upper()
+            if ask in ["Q","B","K","R"]:
+                p.update({ plac : ask})
+            else:
+                print("CAN'T PLACE THIS PIECE")
+                pawnupgrade()
+    elif pc_mov == "p":
+        if idx_plc in range(57, 65):
+            ask = input(f"\n     {tyellow}ENTER PIECE TO UPGRADE : {clr}").lower()
+            if ask in ["q","b","k","r"]:
+                p.update({ plac : ask})
+            else:
+                print("CAN'T PLACE THIS PIECE")
+                pawnupgrade()
+
+# ================================== S P E C I A L  M O V E S ========================================================================
+
+def castling(mov,plac):
+    caslist = [[58,59,61],[62,63],[2,3,4],[6,7]]
+    print(caslist)
+    if p.get(mov) == "X":
+        if kingrook_move[0] < 1:
+            if index.get(plac) == 63 and kingrook_move[3]==0:
+                for i in caslist[1]:
+                    valid = list(map(lambda sublist: list(map(idx_to_pc, sublist)), valid1:=pos_safe(idx_plc)[0]))
+                    if not("q" in valid[0] or "q" in valid[1] or "b" in valid[1] or "r" in valid[0] or "k" in valid[2]):
+                        p.update({ "h8" : " "})
+                        p.update({ "f8" : "R"})
+                        return True
+            if index.get(plac) == 59 and kingrook_move[2]==0:
+                for i in caslist[0]:
+                    valid = list(map(lambda sublist: list(map(idx_to_pc, sublist)), valid1:=pos_safe(idx_plc)[0]))
+                    if not("q" in valid[0] or "q" in valid[1] or "b" in valid[1] or "r" in valid[0] or "k" in valid[2]):
+                        p.update({ "a8" : " "})
+                        p.update({ "d8" : "R"})
+                        return True
+    elif p.get(mov) == "x":
+        if kingrook_move[1] < 1:
+            if index.get(plac) == 7 and kingrook_move[4]==0:
+                for i in caslist[3]:
+                    valid = list(map(lambda sublist: list(map(idx_to_pc, sublist)), valid1:=pos_safe(i)[0]))
+                    if not("Q" in valid[0] or "Q" in valid[1] or "B" in valid[1] or "R" in valid[0] or "K" in valid[2]):
+                        p.update({ "h1" : " "})
+                        p.update({ "f1" : "r"})
+                        return True
+            if index.get(plac) == 3 and kingrook_move[5]==0:
+                for i in caslist[2]:
+                    valid = list(map(lambda sublist: list(map(idx_to_pc, sublist)), valid1:=pos_safe(i)[0]))
+                    if not("Q" in valid[0] or "Q" in valid[1] or "B" in valid[1] or "R" in valid[0] or "K" in valid[2]):
+                        p.update({ "a1" : " "})
+                        p.update({ "d1" : "r"})
+                        return True
+    else:
+        return False
+def empasant(pos,inp,col):
+    if col==0 and "p" in [idx_to_pc(pos+1),idx_to_pc(pos-1)]:
+        empasant_pos.append(pos+8) 
+        empasant_pos.append(inp)
+    if col==1 and "P" in [idx_to_pc(pos+1),idx_to_pc(pos-1)]:
+        empasant_pos.append(pos-8) 
+        empasant_pos.append(inp)
+def graveyard(x):   
+    grave[0] += 1 if x == "P" else 0
+    grave[1] += 1 if x == "Q" else 0
+    grave[2] += 1 if x == "B" else 0
+    grave[3] += 1 if x == "K" else 0
+    grave[4] += 1 if x == "R" else 0
+    grave[5] += 1 if x == "p" else 0
+    grave[6] += 1 if x == "q" else 0
+    grave[7] += 1 if x == "b" else 0
+    grave[8] += 1 if x == "k" else 0
+    grave[9] += 1 if x == "r" else 0
+        
+# ================================ H E L P E R  F U N C T I O N ======================================================================
+
+def idx_to_pc(x):
+    plist = list(p.values())
+    idxlist = list(index.values())
+    for i in range(64):
+        if idxlist[i] == x:
+            return plist[i]
+
+def pos_safe(pos):
+    valid = [[],[],[],[],[],[],[],[]]
+    a = [(pos - (8*i)) for i in range(1,9)]
+    b = [(pos + i) for i in range(1,9)]
+    c = [(pos + (8*i)) for i in range(1,9)]
+    d = [(pos - i) for i in range(1,9)]
+    e = [(pos - ((8*i)+i)) for i in range(1, 9)]
+    f = [(pos + ((8*i)+i)) for i in range(1, 9)]
+    g = [(pos + ((8*i)-i)) for i in range(1, 9)]
+    h = [(pos - ((8*i)-i)) for i in range(1, 9)]
+    k = [pos+6, pos+10, pos+15, pos+17, pos-6, pos-10, pos-15, pos-17]
+    valid1 = [a,b,c,d,e,f,g,h]
+    for z,sub in enumerate(valid1):
+        for i in sub:
+            pc = idx_to_pc(i)
+            if i in range(1,65): 
+                if idx_mov in end1 or idx_mov in end2:
+                    if (idx_mov in end1 and sub[0] in end2) or (idx_mov in end2 and sub[0] in end1):
+                        break
+                    elif pc in white or pc in black:
+                        valid[z].append(i)
+                        break
+                if pc in white or pc in black or i in end1 or i in end2:
+                    valid[z].append(i)
+                    break
+                else:
+                    valid[z].append(i)
+
+    nestlin = [valid[0],valid[1],valid[2],valid[3]]
+    nestdia = [valid[4],valid[5],valid[6],valid[7]]
+    lin = [item for sublist in nestlin for item in sublist]
+    dia = [item for sublist in nestdia for item in sublist]
+    give = [lin,dia,k]
+    return give, valid
+
+def valid_move(mov, plac):
+    pc_mov = p.get(mov)
+    pc_plc = p.get(plac)
+    idx_mov = int(index.get(mov))
+    idx_plc= int(index.get(plac))
+    
+    p[plac] = p[mov]
+    p[mov] = " "
+    ck = list(map(lambda sublist: list(map(idx_to_pc, sublist)), idx:=pos_safe(kpos[turn])[0]))
+    if turn == 0 and ("Q" in ck[0] or "Q" in ck[1] or "B" in ck[1] or "R" in ck[0] or "K" in ck[2]) and (pc_mov != "x"):
+        p[mov] = pc_mov
+        p[plac] = pc_plc
+        return False
+    elif turn == 1 and ("q" in ck[0] or "q" in ck[1] or "b" in ck[1] or "r" in ck[0] or "k" in ck[2]) and (pc_mov != "X"):
+        p[mov] = pc_mov
+        p[plac] = pc_plc
+        return False
+    p[mov] = pc_mov
+    p[plac] = pc_plc
+    # WHITE PAWN
+    if pc_mov == "P":
+        if idx_mov in range(49,57) and (pc_plc) == " " and (idx_plc in [idx_mov-8, idx_mov-16]):
+            empasant_pos.clear()
+            empasant(idx_plc,plac,0)
+            return True
+        elif (idx_plc in [idx_mov-8] and (pc_plc) == " ") or ((idx_plc in [idx_mov-7,idx_mov-9] and (pc_plc in black)) or (idx_plc in empasant_pos)):
+            if idx_plc in empasant_pos:
+                grave[5]+=1
+                p[empasant_pos[1]] = " "
+            empasant_pos.clear()
+            return True
+        # BLACK PAWN
+    elif pc_mov == "p":
+        if idx_mov in range(9,17) and (pc_plc) == " "  and (idx_plc in [idx_mov+8, idx_mov+16]):
+            empasant_pos.clear()
+            empasant(idx_plc,plac,1)
+            return True
+        elif (idx_plc in [idx_mov+8] and (pc_plc) == " ") or ((idx_plc in [idx_mov+7,idx_mov+9] and (pc_plc in white)) or (idx_plc in empasant_pos)):
+            if idx_plc in empasant_pos:
+                grave[0]+=1
+                p[empasant_pos[1]] = " "
+            empasant_pos.clear()
+            return True
+        
+    # White KING
+    elif pc_mov == "X":
+        if idx_plc in [idx_mov+1, idx_mov-1, idx_mov+9, idx_mov+8, idx_mov+7, idx_mov-9, idx_mov-8, idx_mov-7, idx_mov-2, idx_mov+2]:
+            valid = list(map(lambda sublist: list(map(idx_to_pc, sublist)), valid1:=pos_safe(idx_plc)[0]))
+            pawn = list(map(idx_to_pc,[idx_mov+7,idx_mov+9]))
+            kingrook_move[0] += 0.5
+            if not("q" in valid[0] or "q" in valid[1] or "b" in valid[1] or "r" in valid[0] or "k" in valid[2]) or "p" in pawn:
+                if pc_plc in white:
+                    return False
+                if idx_plc in [idx_mov+2, idx_mov-2] and check[0] == 0:
+                    castling(mov,plac)
+                    return True
+        # BLACK KING
+    elif pc_mov == "x": 
+        if idx_plc in [idx_mov+1, idx_mov-1, idx_mov+9, idx_mov+8, idx_mov+7, idx_mov-9, idx_mov-8, idx_mov-7, idx_mov-2, idx_mov+2]:
+            valid = list(map(lambda sublist: list(map(idx_to_pc, sublist)), valid1:=pos_safe(idx_plc)[0]))
+            pawn = list(map(idx_to_pc,[idx_mov-7,idx_mov-9]))
+            kingrook_move[1] += 0.5
+            if not("Q" in valid[0] or "Q" in valid[1] or "B" in valid[1] or "R" in valid[0] or "K" in valid[2] or "P" in pawn):
+                if pc_plc in black:
+                    return False
+                if idx_plc in [idx_mov+2, idx_mov-2] and check[1] == 0:
+                    castling(mov,plac)
+                    return True
+
+    # WHITE KNIGHT
+    elif pc_mov == "K":
+        direction = [idx_mov+6, idx_mov+10, idx_mov+15, idx_mov+17, idx_mov-6, idx_mov-10, idx_mov-15, idx_mov-17]
+        if idx_plc in direction:
+            if pc_plc == " ":
+                return True
+            elif pc_plc in black:
+                return True
+        # BLACK KNIGHT  
+    elif pc_mov == "k":
+        direction = [idx_mov+6, idx_mov+10, idx_mov+15, idx_mov+17, idx_mov-6, idx_mov-10, idx_mov-15, idx_mov-17]
+        if idx_plc in direction:
+            if pc_plc == " ":
+                return True
+            elif pc_plc in white:
+                return True
+                 
+    # WHITE ROOK
+    elif pc_mov == "R":
+        if idx_mov == 57:
+            kingrook_move[2] = 1
+        if idx_mov == 64:
+            kingrook_move[3] = 1
+        kingrook_move[2] += 1
+        og = pos_safe(idx_mov)[0]
+        if idx_plc in og[0]:
+            if mov[0] == plac[0] or mov[1] == plac[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in black:
+                    return True
+        # BLACK ROOK
+    elif pc_mov == "r":
+        if idx_mov == 1:
+            kingrook_move[4] = 1
+        if idx_mov == 8:
+            kingrook_move[5] = 1
+        kingrook_move[3] += 1
+        og = pos_safe(idx_mov)[0]
+        if idx_plc in og[0]:
+            if mov[0] == plac[0] or mov[1] == plac[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in white:
+                    return True
+            
+    # WHITE BISHOP
+    elif pc_mov == "B":
+        og = pos_safe(idx_mov)[0]
+        if idx_plc in og[1]:
+            if pc_plc == " ":
+                return True
+            elif pc_plc in black:
+                return True
+        # BLACK BISHOP
+    elif pc_mov == "b":
+        og = pos_safe(idx_mov)[0]
+        if idx_plc in og[1]:
+            if pc_plc == " ":
+                return True
+            elif pc_plc in white:
+                return True
+
+    # WHITE QUEEN        
+    elif pc_mov == "Q":
+        og = pos_safe(idx_mov)[0]
+        if idx_plc in og[0] or idx_plc in og[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in black:
+                    return True
+        # BLACK QUEEN
+    elif pc_mov == "q":
+        og = pos_safe(idx_mov)[0]
+        if idx_plc in og[0] or idx_plc in og[1]:
+                if pc_plc == " ":
+                    return True
+                elif pc_plc in white:
+                    return True
+    
+    return False
+
+def custom():
+    moves = [
+        ("e1", "a5")
+    ]
+    for i in moves:
+        p[i[1]] = p[i[0]]
+        p[i[0]] = " "
+# custom()
+
+# ============================ C H E C K   A N D   C H E C K M A T E =================================================================
+
+def checkmate(pos,col):
+    colors = [black,white]
+    directions = []
+    idxdirect = [pos-7,pos-8,pos-9,pos-1,pos+1,pos+7,pos+8,pos+9]
+    pcdirect = list(map(idx_to_pc,idxdirect))
+    for z,j in enumerate(pcdirect):
+        if j == " " or j in colors[col]:
+            directions.append(idxdirect[z])
+
+    def blocking_pc():
+        terrorist = [["q","b","r"],["Q","B","R"]]
+        safe_to_move_sq = False
+        sq_to_block = []
+        idx_ck = pos_safe(pos)[1]
+        pc_ck = list(map(lambda sublist: list(map(idx_to_pc, sublist)), idx_ck))
+        for i,subi in enumerate(pc_ck):
+            if any(item in terrorist[col] for item in subi):
+                for j,subj in enumerate(subi):
+                    if subj == " " or subj in terrorist[col]:
+                        sq_to_block.append(idx_ck[i][j])
+        for m in sq_to_block:
+            idx_path = pos_safe(m)[0]
+            to_block = list(map(lambda sublist: list(map(idx_to_pc, sublist)), idx_path))
+            if col == 0:
+                pawn = list(map(idx_to_pc, [m+8]))
+                if m in range(33,41) and m != sq_to_block[-1]:
+                    pawn = list(map(idx_to_pc, [m+8,m+16]))
+                if "Q" in to_block[0] or "Q" in to_block[1] or "B" in to_block[1] or "R" in to_block[0] or "K" in to_block[2] or "P" in pawn:
+                    safe_to_move_sq = True
+            if col == 1:
+                pawn = list(map(idx_to_pc, [m-8]))
+                if m in range(25,33) and m != sq_to_block[-1]:
+                    pawn = list(map(idx_to_pc, [m-8,m-16]))
+                if "q" in to_block[0] or "q" in to_block[1] or "b" in to_block[1] or "r" in to_block[0] or "k" in to_block[2] or "p" in pawn:
+                    safe_to_move_sq = True
+            if safe_to_move_sq == True:
+                return True
+        #  ===================================================
+    if len(directions) != 0:
+        for dir in directions:
+            idx_og = pos_safe(dir)[0]
+            pc_og = list(map(lambda sublist: list(map(idx_to_pc, sublist)), idx_og))
+            m = int(dir)
+            if col == 0 and (not("q" in pc_og[0] or "q" in pc_og[1] or "b" in pc_og[1] or "r" in pc_og[0] or "k" in pc_og[2] or "p" in (pawn:=list(map(idx_to_pc, [m-7,m-9]))))):
+                return False
+            elif col == 1 and (not("Q" in pc_og[0] or "Q" in pc_og[1] or "B" in pc_og[1] or "R" in pc_og[0] or "K" in pc_og[2] or "P" in (pawn:=list(map(idx_to_pc, [m+7,m+9]))))):
+                return False              
+        if blocking_pc() == True:
+            return False
+        else:
+            return True
+    elif blocking_pc() == True:   #For Knight
+        return False
+    else:
+        return True
+
+def checkforcheck():
+    for j in range(64):
+        if plist[j] == "X":
+            King = idxlist[j]
+        if plist[j] == "x":
+            king = idxlist[j]
+    pos = [King,king]
+    kpos[0] = king        
+    kpos[1] = King        
+
+    for i in range(2):
+        og = pos_safe(pos[i])[0]
+        validb = list(map(lambda sublist: list(map(idx_to_pc, sublist)), og))
+        if i == 0:
+            pawn = list(map(idx_to_pc,[King-7,King-9]))
+            if "q" in validb[0] or "q" in validb[1] or "b" in validb[1] or "r" in validb[0] or "k" in validb[2] or "p" in pawn:
+                check[0] += 0.5
+                print(f"\n       {tred} =====================================")
+                print(f"        ||  IT'S CHECK FOR :  ~~ WHITE ~~ ||")
+                print(f"        ====================================={clr}")
+                if checkmate(King,0) == True:
+                    gameover(i)
+                validb.clear()
+        elif i == 1:   
+            pawn = list(map(idx_to_pc,[king+7,king+9]))
+            if "Q" in validb[0] or "Q" in validb[1] or "B" in validb[1] or "R" in validb[0] or "K" in validb[2] or "P" in pawn:
+                check[1] += 0.5
+                print(f"\n       {tred} =====================================")
+                print(f"        ||   IT'S CHECK FOR :  ~~ BLACK ~~ ||")
+                print(f"        ====================================={clr}")
+                if checkmate(king,1) == True:
+                    gameover(i)
+                validb.clear()
+        else:
+            check[0] = 0
+            check[1] = 0                
+
+def gameover(x):
+        print(f"        {tgreen}==============================")
+        print(f"        ||     C H E C K M A T E    ||")
+        print(f"        ||         {"BLACK" if x==0 else "WHITE"} WON        ||")
+        print(f"        =============================={clr}")
+        a = input(f"   {tcyan}WANNA PLAY AGAIN [Y/N]: {clr}").lower()
+        if a in ["y","yes"]:
+            chess()
+        else:
+            print(f"        {tcyan}{itl} ~~  G O O D   G A M E  ~~ {clr}")
+            sys.exit()
+
+def draw():
+    player2 = input(f"\n{tyellow}    PLAYER 2 Draw? : {clr}").lower()
+    if player2 == "draw":
+        print(f"{tgreen}==============================")
+        print(f"||          D R A W         ||")
+        print(f"=============================={clr}\n")
+        playagain = input(f"   {tcyan}WANNA PLAY AGAIN [Y/N]: {clr}").lower()
+        if playagain in ["y","yes"]:
+            chess()
+        else:
+            print(f"  {tcyan}~~~ T H A N K S    F O R   P L A Y I N G ~~~ {clr}")
+            sys.exit()
+
+# ====================================================================================================================================
+
+def chess():
+    global p,index,mov,plac,pc_mov,pc_plc,idx_mov,idx_plc,plist,idxlist,turn
+
+    p = {
+        "a1" : "r", "a2" : "p", "a3" : " ", "a4" : " ", "a5" : " ", "a6" : " ", "a7" : "P", "a8" : "R",
+        "b1" : "k", "b2" : "p", "b3" : " ", "b4" : " ", "b5" : " ", "b6" : " ", "b7" : "P", "b8" : "K",
+        "c1" : "b", "c2" : "p", "c3" : " ", "c4" : " ", "c5" : " ", "c6" : " ", "c7" : "P", "c8" : "B",
+        "d1" : "q", "d2" : "p", "d3" : " ", "d4" : " ", "d5" : " ", "d6" : " ", "d7" : "P", "d8" : "Q",
+        "e1" : "x", "e2" : "p", "e3" : " ", "e4" : " ", "e5" : " ", "e6" : " ", "e7" : "P", "e8" : "X",
+        "f1" : "b", "f2" : "p", "f3" : " ", "f4" : " ", "f5" : " ", "f6" : " ", "f7" : "P", "f8" : "B",
+        "g1" : "k", "g2" : "p", "g3" : " ", "g4" : " ", "g5" : " ", "g6" : " ", "g7" : "P", "g8" : "K",
+        "h1" : "r", "h2" : "p", "h3" : " ", "h4" : " ", "h5" : " ", "h6" : " ", "h7" : "P", "h8" : "R",
+    }
+    index = {
+        "a1" : 1, "a2" : 9, "a3" : 17, "a4" : 25, "a5" : 33, "a6" : 41, "a7" : 49, "a8" : 57,
+        "b1" : 2, "b2" : 10, "b3" : 18, "b4" : 26, "b5" : 34, "b6" : 42, "b7" : 50, "b8" : 58,
+        "c1" : 3, "c2" : 11, "c3" : 19, "c4" : 27, "c5" : 35, "c6" : 43, "c7" : 51, "c8" : 59,
+        "d1" : 4, "d2" : 12, "d3" : 20, "d4" : 28, "d5" : 36, "d6" : 44, "d7" : 52, "d8" : 60,
+        "e1" : 5, "e2" : 13, "e3" : 21, "e4" : 29, "e5" : 37, "e6" : 45, "e7" : 53, "e8" : 61,
+        "f1" : 6, "f2" : 14, "f3" : 22, "f4" : 30, "f5" : 38, "f6" : 46, "f7" : 54, "f8" : 62,
+        "g1" : 7, "g2" : 15, "g3" : 23, "g4" : 31, "g5" : 39, "g6" : 47, "g7" : 55, "g8" : 63,
+        "h1" : 8, "h2" : 16, "h3" : 24, "h4" : 32, "h5" : 40, "h6" : 48, "h7" : 56, "h8" : 64
+    }
+    
+    while True:
+        print_board()
+        if turn == 1:
+            print("   ~ White Turn ~")
+        else:
+            print("   ~ Black Turn ~")
+
+        mov = input("   SELECT PIECE : ")
+        plac = input("   ENTER PLACE POSITION : ")
+        draw() if (mov.lower() == "draw" or plac.lower() == "draw") else 0
+        chess() if (mov.lower() == "reset" or plac.lower() == "reset") else 0
+        
+        if not(mov in (key:= p.keys()) and plac in (key:= p.keys())):
+            print(f"\n  {tred}       ENTER VALID POSITION LIKE 'e1'{clr}")
+            continue
+
+        pc_mov = p.get(mov)
+        pc_plc = p.get(plac)
+        idx_mov = index.get(mov)
+        idx_plc = index.get(plac)
+        plist = list(p.values())
+        idxlist = list(index.values())
+
+        # ========================================
+
+        if valid_move(mov, plac) == True and ((turn==1 and pc_mov in ["X","Q","B","K","R","P"]) or (turn==0 and pc_mov in ["x","q","b","k","r","p"])):
+            movepiece(mov, plac)
+            pawnupgrade()
+            turn = 1-turn
+        else:
+                print(f"\n              {tred} ~~ NOT A VALID MOVE! ~~ {clr}")
+
+        checkforcheck()
+        print("\n------------------------------------------------------------------------------\n")
+
+chess()
